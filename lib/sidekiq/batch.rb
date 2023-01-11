@@ -26,6 +26,13 @@ module Sidekiq
       @batch_push_interval = Sidekiq.options[:batch_push_interval]
     end
 
+    def outside
+      raise NoBlockGivenError unless block_given?
+      og_batch = Thread.current[:batch]
+      Thread.current[:batch] = nil
+      yield
+      Thread.current[:batch] = og_batch
+    end
     def description=(description)
       @description = description
       persist_bid_attr('description', description)
